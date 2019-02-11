@@ -1,0 +1,97 @@
+
+# coding: utf-8
+
+# In[1]:
+
+
+MLP for Pima Indians Dataset with 10-fold cross validation
+from keras.models import Sequential
+from keras.layers import LeakyReLU
+from keras.layers import Dense
+from sklearn.model_selection import StratifiedKFold
+import numpy
+import pandas as pd
+import keras
+from keras.layers import Dense, Dropout, Flatten, Reshape, GlobalAveragePooling1D
+from keras.layers import Conv2D, MaxPooling2D, Conv1D, MaxPooling1D
+from keras.utils import np_utils
+
+# fix random seed for reproducibility
+seed = 7
+numpy.random.seed(seed)
+
+# load pima indians dataset
+dataset = pd.read_csv('data.csv', delimiter=',')
+# split into input (X) and output (Y) variables
+
+X = dataset.iloc[0:5001,0:180].values
+Y = dataset.iloc[5001:11500,0:180].values
+# define 10-fold cross validation test harness
+kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
+cvscores = []
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
+# 1D CNN neural network
+model_m = Sequential()
+model_m.add(Conv1D(4, 6, strides=1,input_shape=(4097,4)))
+model_m.add(LeakyReLU(alpha=0.1))
+model_m.add(MaxPooling1D(4, strides=2))
+model_m.add(Conv1D(4, 5, strides=1))
+model_m.add(LeakyReLU(alpha=0.1))
+model_m.add(MaxPooling1D(4, strides=2))
+model_m.add(Conv1D(10, 4,strides=1))
+model_m.add(LeakyReLU(alpha=0.1))
+model_m.add(MaxPooling1D(10, strides=2))
+model_m.add(Conv1D(10, 4, strides=1))
+model_m.add(LeakyReLU(alpha=0.1))
+model_m.add(MaxPooling1D(10, strides=2))
+model_m.add(Conv1D(15, 4, strides=1))
+model_m.add(LeakyReLU(alpha=0.1))
+model_m.add(MaxPooling1D(15, strides=2))
+model_m.add(Dense (50))
+model_m.add(Dense (20))
+model_m.add(Dense (3,activation='softmax'))
+print(model_m.summary())
+"""
+# Compile model
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# Fit the model
+model.fit(X[train], Y[train], epochs=150, batch_size=3, verbose=0)
+# evaluate the model
+scores = model.evaluate(X[test], Y[test], verbose=0)
+
+print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+cvscores.append(scores[1] * 100)
+print("%.2f%% (+/- %.2f%%)" % (numpy.mean(cvscores), numpy.std(cvscores)))
+
+print("\n--- Fit the model ---\n")
+"""
+
+
+# The EarlyStopping callback monitors training accuracy:
+# if it fails to improve for two consecutive epochs,
+# training stops early
+"""
+callbacks_list = [
+  keras.callbacks.ModelCheckpoint(
+      filepath='best_model.{epoch:02d}-{val_loss:.2f}.h5',
+      monitor='val_loss', save_best_only=True),
+  keras.callbacks.EarlyStopping(monitor='acc', patience=1)
+]
+
+model_m.compile(loss='categorical_crossentropy',
+              optimizer='adam', metrics=['accuracy'])
+
+# Hyper-parameters
+BATCH_SIZE = 3
+EPOCHS = 150
+
+# Enable validation to use ModelCheckpoint and EarlyStopping callbacks.
+history = model_m.fit(X,
+                    Y,
+                    batch_size=BATCH_SIZE,
+                    epochs=EPOCHS,
+                    callbacks=callbacks_list,
+                    validation_split=0.2,
+                    verbose=1)
+"""
+
